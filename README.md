@@ -25,101 +25,118 @@ Developed by: Ritesh DP
 RegisterNumber:  212225040339
 */
 ```
+
 ```
-import pandas as pd
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error
-```
-## Step 1: Load the dataset
-```
-from google.colab import files
-uploaded = files.upload()
+# Load dataset
+data = pd.read_csv("exp_3_50_Startups.csv")
 
-df = pd.read_csv("exp_3_50_Startups.csv")
-
+# Display first few rows
 print("First 5 rows of the dataset:")
-print(df.head())
-```
-## Step 2: Convert categorical data into numerical data
-```
-df = pd.get_dummies(df, columns=["State"], drop_first=True, dtype=int)
-```
-## Step 3: Separate input and output variables
-```
-X = df.drop("Profit", axis=1).values
-Y = df["Profit"].values.reshape(-1, 1)
-```
-## Step 4: Split the dataset
-```
-X_train, X_test, Y_train, Y_test = train_test_split(
-    X, Y, test_size=0.2, random_state=42
-)
-```
-## Step 5: Scale the data
-```
-scaler_X = StandardScaler()
-scaler_Y = StandardScaler()
+display(data.head())
+# One-hot encode the 'State' column
+data_encoded = pd.get_dummies(data, columns=['State'], drop_first=True)
 
-X_train = scaler_X.fit_transform(X_train)
-X_test = scaler_X.transform(X_test)
+# Display the encoded dataset
+print("Encoded dataset:")
+display(data_encoded.head())
+# Independent features (all columns except Profit)
+X_raw = data_encoded.drop('Profit', axis=1).values
 
-Y_train = scaler_Y.fit_transform(Y_train)
-Y_test_scaled = scaler_Y.transform(Y_test)
-```
-## Step 6: Initialize parameters
-```
-m, n = X_train.shape
-weights = np.zeros((n, 1))
-bias = 0.0
-learning_rate = 0.01
-epochs = 1000
-cost_history = []
-```
-## Step 7: Perform gradient descent
-```
-for i in range(epochs):
-    Y_pred = np.dot(X_train, weights) + bias
+# Target variable (Profit)
+y_raw = data_encoded['Profit'].values.reshape(-1, 1)
 
-    error = Y_pred - Y_train
-    dw = (2 / m) * np.dot(X_train.T, error)
-    db = (2 / m) * np.sum(error)
+print("Shape of features:", X_raw.shape)
+print("Shape of target:", y_raw.shape)
+X_scaler = StandardScaler()
+y_scaler = StandardScaler()
 
-    weights -= learning_rate * dw
-    bias -= learning_rate * db
+X = X_scaler.fit_transform(X_raw)
+y = y_scaler.fit_transform(y_raw)
+# Add a column of ones to X for bias term
+m = X.shape[0]
+X = np.hstack((np.ones((m, 1)), X))
+print("Shape of X after adding bias term:", X.shape)
+def compute_cost(X, y, theta):
+    """
+    Compute Mean Squared Error cost.
+    """
+    m = len(y)
+    preds = X.dot(theta)
+    cost = (1 / (2 * m)) * np.sum((preds - y) ** 2)
+    return cost
+def gradient_descent(X, y, learning_rate=0.01, num_iters=2000, tol=1e-8, verbose=False):
+    """
+    Batch Gradient Descent for Linear Regression.
+    """
+    m, n = X.shape
+    theta = np.zeros((n, 1))
+    J_history = []
 
-    cost = np.mean(error ** 2)
-    cost_history.append(cost)
-```
-## Step 8: Predict startup profits
-```
-Y_pred_scaled = np.dot(X_test, weights) + bias
-Y_pred = scaler_Y.inverse_transform(Y_pred_scaled)
-```
-## Step 9: Calculate Mean Squared Error
-```
-mse = mean_squared_error(Y_test, Y_pred)
+    prev_cost = compute_cost(X, y, theta)
 
-print("\nActual Profits:\n", Y_test[:5].flatten())
-print("\nPredicted Profits:\n", Y_pred[:5].flatten())
-print("\nMean Squared Error:", round(mse, 2))
-```
-## Step 10: Plot the cost function
-```
-plt.figure(figsize=(8, 5))
-plt.plot(cost_history)
-plt.title("Gradient Descent Cost Function")
-plt.xlabel("Epochs")
-plt.ylabel("Mean Squared Error")
+    for i in range(num_iters):
+        preds = X.dot(theta)
+        errors = preds - y
+        grad = (1 / m) * (X.T.dot(errors))
+        theta -= learning_rate * grad
+
+        cost = compute_cost(X, y, theta)
+        J_history.append(cost)
+
+        if abs(prev_cost - cost) < tol:
+            if verbose:
+                print(f"Converged at iteration {i}")
+            break
+        prev_cost = cost
+
+        if verbose and (i % 500 == 0 or i < 5):
+            print(f"Iteration {i:4d}, Cost: {cost:.6f}")
+
+    return theta, J_history
+alpha = 0.01
+theta, J_hist = gradient_descent(X, y, learning_rate=alpha, num_iters=5000, tol=1e-9, verbose=True)
+
+print("\nLearned Parameters (Theta):")
+print(theta.flatten())
+plt.figure(figsize=(7,4))
+plt.plot(J_hist)
+plt.xlabel('Iterations')
+plt.ylabel('Cost (MSE/2)')
+plt.title('Cost Function Convergence')
 plt.grid(True)
 plt.show()
+# Create new sample (same feature names as original)
+new_sample = pd.DataFrame([{
+    'R&D Spend': 165349.2,
+    'Administration': 136897.8,
+    'Marketing Spend': 471784.1,
+    'State': 'New York'
+}])
 
-print("\nRESULT: Startup profit prediction using Gradient Descent was completed.")
+# Apply one-hot encoding
+new_encoded = pd.get_dummies(new_sample, columns=['State'], drop_first=True)
 
+# Align columns with training data (add missing ones as 0)
+new_encoded = new_encoded.reindex(columns=data_encoded.drop('Profit', axis=1).columns, fill_value=0)
+
+# Scale new data
+new_scaled = X_scaler.transform(new_encoded)
+
+# Add bias
+new_design = np.hstack((np.ones((new_scaled.shape[0], 1)), new_scaled))
+
+# Predict (scaled)
+scaled_pred = new_design.dot(theta)
+
+# Inverse transform to original units
+pred_original = y_scaler.inverse_transform(scaled_pred)
+
+print(f"\nPredicted Profit for the new startup: ₹{pred_original[0][0]:,.2f}")
 ```
-
 ## Output:
 <img width="1301" height="517" alt="image" src="https://github.com/user-attachments/assets/cdda363e-5a59-419b-90bb-385f03cdcac8" />
 
