@@ -138,11 +138,12 @@ pred_original = y_scaler.inverse_transform(scaled_pred)
 print(f"\nPredicted Profit for the new startup: ₹{pred_original[0][0]:,.2f}")
 ```
 ## Output:
-<img width="1301" height="517" alt="image" src="https://github.com/user-attachments/assets/cdda363e-5a59-419b-90bb-385f03cdcac8" />
+<img width="432" height="181" alt="image" src="https://github.com/user-attachments/assets/ffb0beae-6979-4c91-ab81-b53abaaefd43" />
+<img width="511" height="172" alt="image" src="https://github.com/user-attachments/assets/91719675-2cbb-46b0-bec9-b0fe1fe441a9" />
+<img width="295" height="182" alt="image" src="https://github.com/user-attachments/assets/a62a372c-1d34-477c-8472-6a80c1cd91a8" />
+<img width="617" height="397" alt="image" src="https://github.com/user-attachments/assets/4dfbd2c1-f88c-460b-9eed-a4eb84a51cf4" />
+<img width="676" height="91" alt="image" src="https://github.com/user-attachments/assets/66d19fda-dade-413b-8a14-08275e008d1f" />
 
-<img width="1715" height="326" alt="image" src="https://github.com/user-attachments/assets/198e537a-b81a-4306-8eaa-9f350b9cc04e" />
-
-<img width="987" height="795" alt="image" src="https://github.com/user-attachments/assets/25090ea7-799e-4f2e-9738-83d977512cdb" />
 
 ## Result:
 Thus the program to implement the linear regression using gradient descent is written and verified using python programming.
