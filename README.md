@@ -121,6 +121,9 @@ print("\nRESULT: Startup profit prediction using Gradient Descent was completed.
 ```
 
 ## Output:
+<img width="1301" height="517" alt="image" src="https://github.com/user-attachments/assets/cdda363e-5a59-419b-90bb-385f03cdcac8" />
+
+<img width="1715" height="326" alt="image" src="https://github.com/user-attachments/assets/198e537a-b81a-4306-8eaa-9f350b9cc04e" />
 
 <img width="987" height="795" alt="image" src="https://github.com/user-attachments/assets/25090ea7-799e-4f2e-9738-83d977512cdb" />
 
